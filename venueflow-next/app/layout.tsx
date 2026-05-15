@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth";
+import { logoutUser } from "@/app/auth/logout/actions";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,11 +28,13 @@ export const metadata: Metadata = {
   description: "Sistema de reservaciones de espacios y eventos.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const currentUser = await getCurrentUser();
+
   return (
     <html
       lang="es"
@@ -65,6 +69,34 @@ export default function RootLayout({
                   </Link>
                 ))}
               </nav>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {currentUser ? (
+                  <>
+                    <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                      <span className="font-bold text-slate-900">{currentUser.name}</span>
+                      <span className="ml-2 rounded-full bg-blue-50 px-2 py-1 text-xs font-black text-blue-700">
+                        {currentUser.role}
+                      </span>
+                    </div>
+                    <form action={logoutUser}>
+                      <button
+                        type="submit"
+                        className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                      >
+                        Salir
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700"
+                  >
+                    Login
+                  </Link>
+                )}
+              </div>
             </div>
           </header>
 

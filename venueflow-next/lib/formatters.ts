@@ -1,4 +1,4 @@
-import { EventStatus, ReservationStatus } from "@prisma/client";
+import { CheckInStatus, EventStatus, ReservationStatus } from "@prisma/client";
 
 export function formatCurrency(value: unknown, suffix = "MXN") {
   if (value === null || value === undefined) {
@@ -70,6 +70,28 @@ export function getEventStatusClass(status: EventStatus) {
     PUBLISHED: "bg-emerald-50 text-emerald-700 ring-emerald-200",
     CANCELLED: "bg-slate-100 text-slate-600 ring-slate-200",
     COMPLETED: "bg-blue-50 text-blue-700 ring-blue-200",
+  };
+
+  return classes[status];
+}
+
+export function getCheckInStatusLabel(status: CheckInStatus) {
+  const labels: Record<CheckInStatus, string> = {
+    PENDING: "Pendiente",
+    CHECKED_IN: "Registrado",
+    EXPIRED: "Expirado",
+    CANCELLED: "Cancelado",
+  };
+
+  return labels[status];
+}
+
+export function getCheckInStatusClass(status: CheckInStatus) {
+  const classes: Record<CheckInStatus, string> = {
+    PENDING: "bg-amber-50 text-amber-700 ring-amber-200",
+    CHECKED_IN: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    EXPIRED: "bg-slate-100 text-slate-600 ring-slate-200",
+    CANCELLED: "bg-red-50 text-red-700 ring-red-200",
   };
 
   return classes[status];

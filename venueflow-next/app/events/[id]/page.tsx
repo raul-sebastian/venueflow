@@ -30,6 +30,7 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
       space: true,
       organizer: true,
       attendees: {
+        include: { checkIn: true },
         orderBy: { createdAt: "desc" },
       },
     },
@@ -41,6 +42,12 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
 
   const usedCapacity = event.attendees.length;
   const availableCapacity = Math.max(event.capacity - usedCapacity, 0);
+  const pendingCheckIns = event.attendees.filter(
+    (attendee) => attendee.checkIn?.status === "PENDING",
+  ).length;
+  const completedCheckIns = event.attendees.filter(
+    (attendee) => attendee.checkIn?.status === "CHECKED_IN",
+  ).length;
   const canRegister =
     event.status !== EventStatus.CANCELLED && event.status !== EventStatus.COMPLETED;
   const canCancel = event.status !== EventStatus.COMPLETED;
@@ -68,17 +75,25 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
             </p>
           </div>
 
-          {canCancel ? (
-            <form action={cancelEvent}>
-              <input type="hidden" name="eventId" value={event.id} />
-              <button
-                type="submit"
-                className="rounded-lg border border-red-200 px-4 py-2 text-sm font-bold text-red-700 transition hover:bg-red-50"
-              >
-                Cancelar evento
-              </button>
-            </form>
-          ) : null}
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/events/${event.id}/check-in`}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700"
+            >
+              Gestionar check-in
+            </Link>
+            {canCancel ? (
+              <form action={cancelEvent}>
+                <input type="hidden" name="eventId" value={event.id} />
+                <button
+                  type="submit"
+                  className="rounded-lg border border-red-200 px-4 py-2 text-sm font-bold text-red-700 transition hover:bg-red-50"
+                >
+                  Cancelar evento
+                </button>
+              </form>
+            ) : null}
+          </div>
         </div>
       </section>
 
@@ -146,6 +161,22 @@ export default async function EventDetailPage({ params, searchParams }: PageProp
             </div>
           </div>
         </aside>
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-3">
+        {[
+          { label: "Asistentes registrados", value: usedCapacity },
+          { label: "Check-ins pendientes", value: pendingCheckIns },
+          { label: "Check-ins realizados", value: completedCheckIns },
+        ].map((item) => (
+          <article
+            key={item.label}
+            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+          >
+            <p className="text-sm font-semibold text-slate-500">{item.label}</p>
+            <p className="mt-3 text-3xl font-black">{item.value}</p>
+          </article>
+        ))}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1fr_360px]">

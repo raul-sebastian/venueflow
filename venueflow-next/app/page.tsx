@@ -1,39 +1,31 @@
-import { EventStatus, ReservationStatus } from "@prisma/client";
+import { CheckInStatus, EventStatus, ReservationStatus } from "@prisma/client";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import {
-  formatCurrency,
   formatDateTime,
   getEventStatusClass,
   getEventStatusLabel,
-  getReservationStatusClass,
-  getReservationStatusLabel,
 } from "@/lib/formatters";
 
 export default async function DashboardPage() {
   const now = new Date();
   const [
     totalSpaces,
-    activeSpaces,
-    capacityAggregate,
     totalReservations,
     totalEvents,
-    recentReservations,
+    totalAttendees,
+    totalCheckedIn,
     upcomingReservations,
-    reservationsByStatus,
     upcomingEvents,
     eventsForRanking,
+    reservationsBySpace,
+    spaces,
   ] = await Promise.all([
     prisma.space.count(),
-    prisma.space.count({ where: { isActive: true } }),
-    prisma.space.aggregate({ _sum: { capacity: true } }),
     prisma.reservation.count(),
     prisma.event.count(),
-    prisma.reservation.findMany({
-      include: { space: true },
-      orderBy: { createdAt: "desc" },
-      take: 4,
-    }),
+    prisma.eventAttendee.count(),
+    prisma.checkIn.count({ where: { status: CheckInStatus.CHECKED_IN } }),
     prisma.reservation.findMany({
       where: {
         startDateTime: { gte: now },
@@ -42,10 +34,6 @@ export default async function DashboardPage() {
       include: { space: true },
       orderBy: { startDateTime: "asc" },
       take: 4,
-    }),
-    prisma.reservation.groupBy({
-      by: ["status"],
-      _count: { status: true },
     }),
     prisma.event.findMany({
       where: {
@@ -66,22 +54,28 @@ export default async function DashboardPage() {
       },
       take: 20,
     }),
+    prisma.reservation.groupBy({
+      by: ["spaceId"],
+      _count: { spaceId: true },
+      orderBy: { _count: { spaceId: "desc" } },
+      take: 5,
+    }),
+    prisma.space.findMany({
+      select: { id: true, name: true, capacity: true },
+    }),
   ]);
 
-  const statusCount = new Map(
-    reservationsByStatus.map((item) => [item.status, item._count.status]),
-  );
-
+  const spaceNameById = new Map(spaces.map((space) => [space.id, space.name]));
   const topEvents = eventsForRanking
     .sort((a, b) => b._count.attendees - a._count.attendees)
     .slice(0, 4);
 
   const stats = [
-    { label: "Total de espacios", value: totalSpaces },
-    { label: "Espacios activos", value: activeSpaces },
-    { label: "Capacidad total", value: capacityAggregate._sum.capacity ?? 0 },
+    { label: "Espacios", value: totalSpaces },
     { label: "Reservaciones", value: totalReservations },
     { label: "Eventos", value: totalEvents },
+    { label: "Asistentes", value: totalAttendees },
+    { label: "Check-ins", value: totalCheckedIn },
   ];
 
   return (
@@ -92,11 +86,11 @@ export default async function DashboardPage() {
             Panel principal
           </p>
           <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-            Control de espacios, reservaciones y eventos
+            Operación completa de VenueFlow
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
-            Dashboard conectado a PostgreSQL para consultar ocupación, próximas
-            reservas, eventos y actividad reciente de VenueFlow.
+            Métricas reales de espacios, reservaciones, eventos, asistentes y check-ins
+            conectadas a PostgreSQL.
           </p>
         </div>
         <div className="flex flex-wrap items-end justify-start gap-3 lg:justify-end">
@@ -129,33 +123,38 @@ export default async function DashboardPage() {
         ))}
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="grid gap-6 lg:grid-cols-2">
         <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-black tracking-tight">Reservaciones por estado</h2>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {Object.values(ReservationStatus).map((status) => (
-              <div key={status} className="rounded-lg bg-slate-50 p-4">
-                <span
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ring-1 ${getReservationStatusClass(
-                    status,
-                  )}`}
-                >
-                  {getReservationStatusLabel(status)}
-                </span>
-                <p className="mt-3 text-3xl font-black">{statusCount.get(status) ?? 0}</p>
-              </div>
-            ))}
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-xl font-black tracking-tight">Próximas reservaciones</h2>
+            <Link href="/reservations" className="text-sm font-bold text-blue-700">
+              Ver todas
+            </Link>
+          </div>
+          <div className="mt-5 space-y-3">
+            {upcomingReservations.length === 0 ? (
+              <p className="rounded-lg bg-slate-50 p-4 text-sm font-semibold text-slate-500">
+                No hay próximas reservaciones activas.
+              </p>
+            ) : (
+              upcomingReservations.map((reservation) => (
+                <div key={reservation.id} className="rounded-lg border border-slate-100 p-4">
+                  <h3 className="font-black">{reservation.title}</h3>
+                  <p className="mt-1 text-sm font-semibold text-blue-700">
+                    {reservation.space.name}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-500">
+                    {formatDateTime(reservation.startDateTime)}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </article>
 
         <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-black tracking-tight">Próximos eventos</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Borradores o publicados desde este momento.
-              </p>
-            </div>
+            <h2 className="text-xl font-black tracking-tight">Próximos eventos</h2>
             <Link href="/events" className="text-sm font-bold text-blue-700">
               Ver todos
             </Link>
@@ -195,29 +194,29 @@ export default async function DashboardPage() {
         </article>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
+      <section className="grid gap-6 lg:grid-cols-2">
         <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-xl font-black tracking-tight">Próximas reservaciones</h2>
-            <Link href="/reservations" className="text-sm font-bold text-blue-700">
-              Ver todas
-            </Link>
-          </div>
+          <h2 className="text-xl font-black tracking-tight">Espacios más usados</h2>
           <div className="mt-5 space-y-3">
-            {upcomingReservations.length === 0 ? (
+            {reservationsBySpace.length === 0 ? (
               <p className="rounded-lg bg-slate-50 p-4 text-sm font-semibold text-slate-500">
-                No hay próximas reservaciones activas.
+                Aún no hay uso registrado por espacio.
               </p>
             ) : (
-              upcomingReservations.map((reservation) => (
-                <div key={reservation.id} className="rounded-lg border border-slate-100 p-4">
-                  <h3 className="font-black">{reservation.title}</h3>
-                  <p className="mt-1 text-sm font-semibold text-blue-700">
-                    {reservation.space.name}
-                  </p>
-                  <p className="mt-2 text-sm text-slate-500">
-                    {formatDateTime(reservation.startDateTime)}
-                  </p>
+              reservationsBySpace.map((item) => (
+                <div key={item.spaceId} className="rounded-lg bg-slate-50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-black">{spaceNameById.get(item.spaceId)}</p>
+                    <p className="text-sm font-black text-blue-700">
+                      {item._count.spaceId} reservas
+                    </p>
+                  </div>
+                  <div className="mt-3 h-2 rounded-full bg-slate-200">
+                    <div
+                      className="h-2 rounded-full bg-blue-600"
+                      style={{ width: `${Math.min(item._count.spaceId * 20, 100)}%` }}
+                    />
+                  </div>
                 </div>
               ))
             )}
@@ -248,31 +247,6 @@ export default async function DashboardPage() {
                     </span>
                   </div>
                 </Link>
-              ))
-            )}
-          </div>
-        </article>
-
-        <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-black tracking-tight">Reservaciones recientes</h2>
-          <div className="mt-5 space-y-3">
-            {recentReservations.length === 0 ? (
-              <p className="rounded-lg bg-slate-50 p-4 text-sm font-semibold text-slate-500">
-                Aún no hay reservaciones registradas.
-              </p>
-            ) : (
-              recentReservations.map((reservation) => (
-                <div key={reservation.id} className="rounded-lg border border-slate-100 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="font-black">{reservation.title}</h3>
-                    <span className="text-sm font-bold text-slate-600">
-                      {formatCurrency(reservation.totalPrice)}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {reservation.space.name} · {formatDateTime(reservation.startDateTime)}
-                  </p>
-                </div>
               ))
             )}
           </div>
