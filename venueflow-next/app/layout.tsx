@@ -20,6 +20,7 @@ const navigation = [
   { href: "/spaces", label: "Espacios" },
   { href: "/reservations", label: "Reservaciones" },
   { href: "/events", label: "Eventos" },
+  { href: "/recommendations", label: "Recomendador" },
   { href: "/admin", label: "Admin" },
 ];
 

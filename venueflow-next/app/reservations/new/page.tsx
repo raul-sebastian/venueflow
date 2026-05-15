@@ -7,6 +7,7 @@ type PageProps = {
   searchParams?: Promise<{
     created?: string;
     error?: string;
+    spaceId?: string;
   }>;
 };
 
@@ -16,6 +17,8 @@ export default async function NewReservationPage({ searchParams }: PageProps) {
     where: { isActive: true },
     orderBy: { name: "asc" },
   });
+
+  const selectedSpace = spaces.find((space) => space.id === params?.spaceId);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -30,6 +33,12 @@ export default async function NewReservationPage({ searchParams }: PageProps) {
             rango horario y traslapes en el mismo espacio.
           </p>
         </div>
+
+        {selectedSpace ? (
+          <div className="mt-5 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm font-semibold text-blue-800">
+            Espacio recomendado preseleccionado: {selectedSpace.name}.
+          </div>
+        ) : null}
 
         {params?.created ? (
           <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
@@ -49,6 +58,7 @@ export default async function NewReservationPage({ searchParams }: PageProps) {
             <select
               name="spaceId"
               required
+              defaultValue={params?.spaceId ?? ""}
               className="h-12 rounded-lg border border-slate-300 bg-white px-3 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             >
               <option value="">Selecciona un espacio</option>
@@ -119,10 +129,10 @@ export default async function NewReservationPage({ searchParams }: PageProps) {
 
           <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
             <Link
-              href="/reservations"
+              href="/recommendations"
               className="rounded-lg border border-slate-300 px-5 py-3 text-center text-sm font-bold text-slate-700 transition hover:bg-slate-50"
             >
-              Ver reservaciones
+              Volver al recomendador
             </Link>
             <button
               type="submit"
