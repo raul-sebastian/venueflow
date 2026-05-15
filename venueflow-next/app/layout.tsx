@@ -17,6 +17,7 @@ const navigation = [
   { href: "/", label: "Dashboard" },
   { href: "/spaces", label: "Espacios" },
   { href: "/reservations", label: "Reservaciones" },
+  { href: "/events", label: "Eventos" },
   { href: "/admin", label: "Admin" },
 ];
 
