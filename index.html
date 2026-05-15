@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VenueFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <div class="app-card">
+
+      <!-- HEADER -->
+      <header class="topbar">
+        <div class="brand" id="goHomeLogo">
+          <div class="brand-icon">📅</div>
+          <span class="brand-text">Venue<span>Flow</span></span>
+        </div>
+
+        <nav class="nav">
+          <a href="#" id="navHome">Dashboard</a>
+          <a href="#">My Reservations</a>
+          <a href="#">Admin Panel</a>
+        </nav>
+
+        <div class="top-actions">
+          <button class="icon-btn">⌕</button>
+          <button class="icon-btn">⚙</button>
+          <button class="icon-btn">🔔</button>
+          <div class="avatar" id="openAdminDashboard">RS</div>
+          <button class="icon-btn">⌄</button>
+        </div>
+      </header>
+
+      <!-- ================= HOME VIEW ================= -->
+      <section id="homeView">
+        <!-- HERO -->
+        <section class="hero">
+          <div class="hero-bg"></div>
+          <div class="hero-content">
+            <h1>Reserve espacios fácilmente</h1>
+
+            <div class="search-bar">
+              <input type="text" placeholder="Buscar espacio..." />
+              <button>Buscar</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAIN -->
+        <main class="main-content">
+          <section class="search-section">
+            <h2>Seleccionar fecha</h2>
+
+            <div class="search-grid">
+              <!-- CALENDARIO -->
+              <div class="calendar-card">
+                <div class="calendar-header">
+                  <button>&lt;</button>
+                  <span>Abril 2026</span>
+                  <button>&gt;</button>
+                </div>
+
+                <div class="calendar-days">
+                  <span>D</span>
+                  <span>L</span>
+                  <span>M</span>
+                  <span>M</span>
+                  <span>J</span>
+                  <span>V</span>
+                  <span>S</span>
+                </div>
+
+                <div class="calendar-dates">
+                  <span></span><span></span><span></span><span>1</span><span>2</span><span>3</span><span>4</span>
+                  <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span>
+                  <span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span class="active">17</span><span>18</span>
+                  <span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span>
+                  <span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span></span><span></span>
+                </div>
+
+                <button class="primary-btn full">Buscar espacios</button>
+              </div>
+
+              <!-- TARJETAS -->
+              <article class="space-card" data-space-id="1">
+                <img src="img/coworking.jpg" alt="Sala Coworking A" />
+                <div class="space-info">
+                  <h3>Sala Coworking A</h3>
+                  <p>Coworking</p>
+                  <p>Capacidad: 20 personas</p>
+                  <button class="primary-btn details-btn">Ver detalles</button>
+                </div>
+              </article>
+
+              <article class="space-card" data-space-id="2">
+                <img src="img/salon.jpg" alt="Salón de Eventos B" />
+                <div class="space-info">
+                  <h3>Salón de Eventos B</h3>
+                  <p>Salón</p>
+                  <p>Capacidad: 100 personas</p>
+                  <button class="primary-btn details-btn">Ver detalles</button>
+                </div>
+              </article>
+
+              <article class="space-card" data-space-id="3">
+                <img src="img/reunion.jpg" alt="Sala de reuniones C" />
+                <div class="space-info">
+                  <h3>Sala de reuniones C</h3>
+                  <p>Reuniones</p>
+                  <p>Capacidad: 8 personas</p>
+                  <button class="primary-btn details-btn">Ver detalles</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="featured-section">
+            <h2>Espacios destacados</h2>
+
+            <div class="featured-grid">
+              <article class="featured-card">
+                <img src="img/coworking.jpg" alt="Sala Coworking A" />
+                <div class="featured-caption">Sala Coworking A</div>
+              </article>
+
+              <article class="featured-card">
+                <img src="img/salon.jpg" alt="Salón de Eventos B" />
+                <div class="featured-caption">Salón de Eventos B</div>
+              </article>
+
+              <article class="featured-card">
+                <img src="img/reunion.jpg" alt="Sala de reuniones C" />
+                <div class="featured-caption">Sala de reuniones C</div>
+              </article>
+            </div>
+          </section>
+        </main>
+      </section>
+
+      <!-- ================= RESERVATION VIEW ================= -->
+      <section id="reservationView" class="hidden">
+        <main class="main-content">
+          <div class="reservation-header-row">
+            <button class="back-btn" id="backToHome">← Volver</button>
+            <h2>Reservar espacio</h2>
+          </div>
+
+          <section class="reservation-layout">
+            <div class="reservation-top-card">
+              <div class="reservation-space-preview">
+                <img id="reserveImage" src="img/coworking.jpg" alt="Espacio" />
+                <div class="mini-space-info">
+                  <h3 id="reserveMiniName">Sala Coworking A</h3>
+                  <p id="reserveMiniType">Coworking</p>
+                  <p id="reserveMiniCapacity">Capacidad: 20 personas</p>
+                  <div class="mini-tags">
+                    <span id="reserveMiniEquip">Proyector</span>
+                    <span id="reserveMiniLocation">Toluca</span>
+                  </div>
+                  <strong id="reserveMiniPrice">$750 MXN/hora</strong>
+                  <button class="primary-btn reserve-mini-btn">Reservar</button>
+                </div>
+              </div>
+
+              <div class="reservation-main-info">
+                <div class="reservation-main-grid">
+                  <div class="reservation-main-left">
+                    <h3 id="reserveTitle">Sala Coworking A</h3>
+                    <p id="reserveType">Coworking</p>
+                    <p id="reserveCapacity">Capacidad: 20 personas</p>
+
+                    <div class="tag-row">
+                      <span class="tag" id="reserveEquipTag">Proyector</span>
+                      <span class="tag" id="reserveLocationTag">Toluca</span>
+                    </div>
+
+                    <div class="price-line">
+                      <strong id="reservePrice">$750 MXN</strong>
+                      <span>/Hora</span>
+                    </div>
+                  </div>
+
+                  <div class="reservation-main-right">
+                    <p id="reserveDateText">12 Marzo 2026</p>
+                    <p id="reserveHourText">10:00 - 12:00</p>
+                    <p><span id="reserveAssistantsText">10</span> asistentes</p>
+                    <p class="total-line">Total: <strong id="reserveTotalText">$750 MXN</strong></p>
+                  </div>
+                </div>
+
+                <div class="reservation-controls">
+                  <div class="control-block">
+                    <label>Horario</label>
+                    <div class="time-slots">
+                      <button class="time-slot" data-hours="2">10:00 - 12:00</button>
+                      <button class="time-slot active-slot" data-hours="2">13:00 - 15:00</button>
+                      <button class="time-slot" data-hours="2">16:00 - 18:00</button>
+                    </div>
+                  </div>
+
+                  <div class="control-block">
+                    <label>Número de asistentes</label>
+                    <div class="assistants-control">
+                      <button id="minusBtn">−</button>
+                      <span id="assistantsCount">10</span>
+                      <button id="plusBtn">+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <section class="reservation-summary-card">
+              <p class="summary-note">Resumen de reservación</p>
+
+              <div class="summary-box">
+                <div class="summary-left">
+                  <h3>Confirmar reserva</h3>
+
+                  <div class="summary-details">
+                    <div class="summary-item">
+                      <span>📅</span>
+                      <p id="summaryDate">12 Marzo 2026</p>
+                    </div>
+
+                    <div class="summary-item">
+                      <span>🕒</span>
+                      <p id="summaryHour">10:00 - 12:00</p>
+                    </div>
+
+                    <div class="summary-item">
+                      <span>👤</span>
+                      <p><span id="summaryAssistants">10</span> asistentes</p>
+                    </div>
+
+                    <div class="summary-item">
+                      <span>💲</span>
+                      <p id="summaryTotal">$750 MXN</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="summary-right">
+                  <button class="confirm-btn" id="confirmReservation">Confirmar reserva</button>
+                </div>
+              </div>
+            </section>
+          </section>
+        </main>
+      </section>
+
+      <!-- ================= ADMIN VIEW ================= -->
+      <section id="adminView" class="hidden">
+        <main class="main-content">
+          <div class="reservation-header-row">
+            <button class="back-btn" id="backFromAdmin">← Volver</button>
+            <h2>Admin dashboard</h2>
+          </div>
+
+          <section class="admin-stats-grid">
+            <article class="stat-card">
+              <div class="stat-icon">📅</div>
+              <div>
+                <h3>125</h3>
+                <p>Reservas este mes</p>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div>
+                <h3>85%</h3>
+                <p>Ocupación actual</p>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-icon">🗓</div>
+              <div>
+                <h3>12</h3>
+                <p>Próximos eventos</p>
+              </div>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-icon">🎟</div>
+              <div>
+                <h3>280</h3>
+                <p>Participantes este mes</p>
+              </div>
+            </article>
+          </section>
+
+          <section class="admin-panels-grid">
+            <article class="admin-panel">
+              <h3>Reservas del día</h3>
+              <div class="booking-list">
+                <div class="booking-item">
+                  <div>
+                    <strong>Sala Coworking A</strong>
+                    <p>Coworking</p>
+                  </div>
+                  <span>10:00 - 12:00</span>
+                </div>
+
+                <div class="booking-item">
+                  <div>
+                    <strong>Taller Marketing</strong>
+                    <p>Sala de reuniones</p>
+                  </div>
+                  <span>13:00 - 15:00</span>
+                </div>
+
+                <div class="booking-item">
+                  <div>
+                    <strong>Conferencia IA</strong>
+                    <p>Salón principal</p>
+                  </div>
+                  <span>16:00 - 18:00</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="admin-panel">
+              <h3>Tasa de ocupación</h3>
+              <div class="fake-chart line-chart">
+                <div class="line line-1"></div>
+              </div>
+            </article>
+
+            <article class="admin-panel">
+              <h3>Espacios reservados</h3>
+              <div class="fake-chart bars-chart">
+                <div class="bar" style="height: 72%"></div>
+                <div class="bar" style="height: 58%"></div>
+                <div class="bar" style="height: 50%"></div>
+                <div class="bar" style="height: 68%"></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="admin-actions-panel">
+            <h3>Acciones rápidas</h3>
+            <div class="admin-actions">
+              <button class="primary-btn quick-btn">Crear evento</button>
+              <button class="primary-btn quick-btn">Gestionar espacios</button>
+              <button class="primary-btn quick-btn">Ver reservas</button>
+            </div>
+          </section>
+        </main>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
