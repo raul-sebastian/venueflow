@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { formatCurrency } from "@/lib/formatters";
 import { createReservation } from "./actions";
 
 type PageProps = {
@@ -8,10 +9,6 @@ type PageProps = {
     error?: string;
   }>;
 };
-
-function formatMoney(value: unknown) {
-  return `$${Number(value).toLocaleString("es-MX")} MXN/h`;
-}
 
 export default async function NewReservationPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -57,7 +54,8 @@ export default async function NewReservationPage({ searchParams }: PageProps) {
               <option value="">Selecciona un espacio</option>
               {spaces.map((space) => (
                 <option key={space.id} value={space.id}>
-                  {space.name} - {space.capacity} personas - {formatMoney(space.pricePerHour)}
+                  {space.name} - {space.capacity} personas -{" "}
+                  {formatCurrency(space.pricePerHour, "MXN/h")}
                 </option>
               ))}
             </select>
@@ -121,10 +119,10 @@ export default async function NewReservationPage({ searchParams }: PageProps) {
 
           <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
             <Link
-              href="/spaces"
+              href="/reservations"
               className="rounded-lg border border-slate-300 px-5 py-3 text-center text-sm font-bold text-slate-700 transition hover:bg-slate-50"
             >
-              Ver espacios
+              Ver reservaciones
             </Link>
             <button
               type="submit"

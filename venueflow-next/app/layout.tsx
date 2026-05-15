@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 const navigation = [
   { href: "/", label: "Dashboard" },
   { href: "/spaces", label: "Espacios" },
-  { href: "/reservations/new", label: "Reservaciones" },
+  { href: "/reservations", label: "Reservaciones" },
   { href: "/admin", label: "Admin" },
 ];
 

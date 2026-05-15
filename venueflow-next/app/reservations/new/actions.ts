@@ -1,6 +1,7 @@
 "use server";
 
 import { ReservationStatus, UserRole } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { validateReservationRequest } from "@/lib/reservation-validations";
@@ -78,5 +79,8 @@ export async function createReservation(formData: FormData) {
     },
   });
 
-  redirect("/reservations/new?created=1");
+  revalidatePath("/reservations");
+  revalidatePath("/");
+
+  redirect("/reservations?created=1");
 }
