@@ -12,6 +12,13 @@ type PageProps = {
   }>;
 };
 
+const coverClasses = [
+  "bg-gradient-to-br from-indigo-500 to-blue-400",
+  "bg-gradient-to-br from-violet-500 to-fuchsia-400",
+  "bg-gradient-to-br from-emerald-500 to-teal-400",
+  "bg-gradient-to-br from-amber-500 to-orange-400",
+];
+
 export default async function EventsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const events = await prisma.event.findMany({
@@ -33,7 +40,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight">Agenda de eventos</h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            Administra eventos reales, asistentes y cupos conectados a PostgreSQL.
+            Gestiona tus eventos, cupos y asistentes desde una agenda clara.
           </p>
         </div>
         <Link
@@ -50,9 +57,9 @@ export default async function EventsPage({ searchParams }: PageProps) {
         </div>
       ) : null}
 
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="grid gap-5">
         {events.length === 0 ? (
-          <div className="p-8 text-center">
+          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
             <h2 className="text-xl font-black">Todavía no hay eventos</h2>
             <p className="mt-2 text-slate-600">
               Crea el primer evento para comenzar a registrar asistentes.
@@ -65,12 +72,13 @@ export default async function EventsPage({ searchParams }: PageProps) {
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
-            {events.map((event) => (
-              <article
-                key={event.id}
-                className="grid gap-4 p-5 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center"
-              >
+          events.map((event, index) => (
+            <article
+              key={event.id}
+              className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+            >
+              <div className={`h-24 ${coverClasses[index % coverClasses.length]}`} />
+              <div className="grid gap-4 p-5 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="text-lg font-black text-slate-950">{event.name}</h2>
@@ -86,7 +94,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
                     {event.space.name}
                   </p>
                   <p className="mt-2 text-sm text-slate-500">
-                    {event.description ?? "Sin descripción registrada."}
+                    {event.description ?? "Evento disponible para asistentes registrados."}
                   </p>
                 </div>
 
@@ -123,9 +131,9 @@ export default async function EventsPage({ searchParams }: PageProps) {
                     Ver detalle
                   </Link>
                 </div>
-              </article>
-            ))}
-          </div>
+              </div>
+            </article>
+          ))
         )}
       </section>
     </div>

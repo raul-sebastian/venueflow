@@ -36,8 +36,8 @@ export default async function ReservationsPage({ searchParams }: PageProps) {
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight">Agenda de espacios</h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            Consulta las reservaciones reales registradas en PostgreSQL y cancela
-            aquellas que todavía no estén completadas.
+            Consulta tus reservaciones y cancela aquellas que todavía no estén
+            completadas.
           </p>
         </div>
         <Link

@@ -29,8 +29,8 @@ export default async function NewReservationPage({ searchParams }: PageProps) {
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight">Nueva reservación</h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            Registra una reserva real en PostgreSQL. El sistema valida capacidad,
-            rango horario y traslapes en el mismo espacio.
+            Elige un espacio, define horario y registra tu actividad con validación
+            de disponibilidad.
           </p>
         </div>
 

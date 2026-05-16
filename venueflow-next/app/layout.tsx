@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { UserRole } from "@prisma/client";
 import { getCurrentUser } from "@/lib/auth";
 import { logoutUser } from "@/app/auth/logout/actions";
 import "./globals.css";
@@ -15,15 +16,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const navigation = [
-  { href: "/", label: "Dashboard" },
-  { href: "/spaces", label: "Espacios" },
-  { href: "/reservations", label: "Reservaciones" },
-  { href: "/events", label: "Eventos" },
-  { href: "/recommendations", label: "Recomendador" },
-  { href: "/admin", label: "Admin" },
-];
-
 export const metadata: Metadata = {
   title: "VenueFlow",
   description: "Sistema de reservaciones de espacios y eventos.",
@@ -35,6 +27,19 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const currentUser = await getCurrentUser();
+  const navigation = currentUser
+    ? [
+        {
+          href: currentUser.role === UserRole.ADMIN ? "/admin" : "/portal",
+          label: currentUser.role === UserRole.ADMIN ? "Dashboard" : "Inicio",
+        },
+        { href: "/spaces", label: "Espacios" },
+        { href: "/reservations", label: "Reservaciones" },
+        { href: "/events", label: "Eventos" },
+        { href: "/recommendations", label: "Recomendador" },
+        ...(currentUser.role === UserRole.ADMIN ? [{ href: "/admin", label: "Admin" }] : []),
+      ]
+    : [];
 
   return (
     <html
@@ -59,17 +64,19 @@ export default async function RootLayout({
                 </span>
               </Link>
 
-              <nav className="flex flex-wrap gap-2">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
+              {currentUser ? (
+                <nav className="flex flex-wrap gap-2">
+                  {navigation.map((item) => (
+                    <Link
+                      key={`${item.href}-${item.label}`}
+                      href={item.href}
+                      className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
+              ) : null}
 
               <div className="flex flex-wrap items-center gap-3">
                 {currentUser ? (

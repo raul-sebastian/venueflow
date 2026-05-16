@@ -26,17 +26,17 @@ export default async function AdminPage() {
           Acceso restringido
         </p>
         <h1 className="mt-3 text-3xl font-black tracking-tight">
-          Esta sección es solo para administradores
+          Esta seccion es solo para administradores
         </h1>
         <p className="mx-auto mt-3 max-w-2xl text-slate-600">
-          Tu rol actual es {user.role}. Puedes seguir usando el dashboard, espacios,
+          Tu rol actual es {user.role}. Puedes seguir usando el inicio, espacios,
           reservaciones y eventos.
         </p>
         <Link
           href="/"
           className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
         >
-          Volver al dashboard
+          Volver al inicio
         </Link>
       </div>
     );
@@ -115,18 +115,18 @@ export default async function AdminPage() {
     { label: "Asistentes", value: totalAttendees },
     { label: "Check-ins", value: totalCheckIns },
     { label: "Reservas activas", value: activeReservations },
-    { label: "Eventos próximos", value: upcomingEvents },
+    { label: "Eventos proximos", value: upcomingEvents },
   ];
 
   return (
     <div className="space-y-6">
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-          Administración
+          Administracion
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">Panel admin</h1>
         <p className="mt-3 max-w-2xl text-slate-600">
-          Analítica real de ocupación, estados, eventos y check-ins de VenueFlow.
+          Resumen de actividad, ocupacion, eventos y validaciones de VenueFlow.
         </p>
       </section>
 
@@ -144,7 +144,7 @@ export default async function AdminPage() {
 
       <section className="grid gap-6 xl:grid-cols-2">
         <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-black">Ocupación por espacio</h2>
+          <h2 className="text-xl font-black">Ocupacion por espacio</h2>
           <div className="mt-5 space-y-4">
             {spacesWithCounts.map((space) => {
               const usage = space._count.reservations + space._count.events;
@@ -156,7 +156,7 @@ export default async function AdminPage() {
                     <div>
                       <h3 className="font-black">{space.name}</h3>
                       <p className="mt-1 text-sm text-slate-500">
-                        {space._count.reservations} reservas · {space._count.events} eventos
+                        {space._count.reservations} reservas - {space._count.events} eventos
                       </p>
                     </div>
                     <span className="text-sm font-black text-blue-700">{usage} usos</span>
@@ -242,7 +242,7 @@ export default async function AdminPage() {
       <section className="grid gap-6 xl:grid-cols-2">
         <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-xl font-black">Últimas reservaciones</h2>
+            <h2 className="text-xl font-black">Ultimas reservaciones</h2>
             <Link href="/reservations" className="text-sm font-bold text-blue-700">
               Ver todas
             </Link>
@@ -257,7 +257,7 @@ export default async function AdminPage() {
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-slate-500">
-                  {reservation.space.name} · {reservation.user.name} ·{" "}
+                  {reservation.space.name} - {reservation.user.name} -{" "}
                   {formatDateTime(reservation.startDateTime)}
                 </p>
               </div>
@@ -267,7 +267,7 @@ export default async function AdminPage() {
 
         <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-xl font-black">Últimos eventos</h2>
+            <h2 className="text-xl font-black">Ultimos eventos</h2>
             <Link href="/events" className="text-sm font-bold text-blue-700">
               Ver todos
             </Link>
@@ -282,7 +282,7 @@ export default async function AdminPage() {
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-slate-500">
-                  {event.space.name} · {event._count.attendees} asistentes ·{" "}
+                  {event.space.name} - {event._count.attendees} asistentes -{" "}
                   {formatDateTime(event.startDateTime)}
                 </p>
               </div>

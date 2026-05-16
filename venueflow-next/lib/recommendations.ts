@@ -109,30 +109,30 @@ export async function recommendSpaces(input: RecommendationInput) {
     }
 
     const reasons: string[] = [
-      `Capacidad suficiente para ${input.attendees} personas.`,
-      "Disponible en el rango horario solicitado.",
+      `Tiene capacidad para ${input.attendees} personas.`,
+      "Está disponible en el horario solicitado.",
     ];
     let score = 40;
 
     if (compatibleTypes[input.useCase].includes(space.type)) {
       score += 35;
-      reasons.push("Tipo de espacio compatible con el uso indicado.");
+      reasons.push("Su tipo de espacio encaja con la actividad.");
     }
 
     if (input.maxPricePerHour) {
       score += 15;
-      reasons.push("Precio dentro del presupuesto por hora.");
+      reasons.push("Se mantiene dentro del presupuesto indicado.");
     }
 
     const capacityGap = space.capacity - input.attendees;
     if (capacityGap <= Math.max(4, input.attendees * 0.4)) {
       score += 10;
-      reasons.push("Capacidad ajustada sin desperdiciar demasiado espacio.");
+      reasons.push("Aprovecha bien la capacidad disponible.");
     }
 
     if (space.equipment && input.notes) {
       score += 5;
-      reasons.push("El espacio tiene equipo registrado para apoyar la solicitud.");
+      reasons.push("Cuenta con equipo registrado que puede apoyar tu actividad.");
     }
 
     recommendations.push({ space, score, reasons });
@@ -148,15 +148,15 @@ export function getAssistantSummary(
   input: RecommendationInput,
   recommendations: SpaceRecommendation[],
 ) {
-  const requestSummary = `Buscas un espacio para ${input.attendees} personas, uso "${input.useCase}", del ${input.startDateTime.toLocaleString(
+  const requestSummary = `Analicé una solicitud para ${input.attendees} personas, actividad "${input.useCase}", del ${input.startDateTime.toLocaleString(
     "es-MX",
   )} al ${input.endDateTime.toLocaleString("es-MX")}.`;
 
   if (recommendations.length === 0) {
-    return `${requestSummary} No encontré espacios que cumplan capacidad, presupuesto y disponibilidad. Puedes probar otro horario, ampliar presupuesto o reducir asistentes.`;
+    return `${requestSummary} No encontré espacios disponibles que cumplan capacidad, horario y presupuesto. Prueba con otro horario o ajusta tus necesidades.`;
   }
 
   const best = recommendations[0];
 
-  return `${requestSummary} Encontré ${recommendations.length} espacio(s) compatible(s). La mejor opción es ${best.space.name} porque tiene capacidad suficiente, está disponible y coincide con las reglas principales del uso solicitado.`;
+  return `${requestSummary} Encontré ${recommendations.length} opción(es). Te sugiero empezar por ${best.space.name}, porque combina capacidad suficiente, disponibilidad y buen ajuste para tu actividad.`;
 }

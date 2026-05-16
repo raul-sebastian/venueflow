@@ -20,7 +20,7 @@ export async function registerEventAttendee(formData: FormData) {
   const email = getString(formData, "email").toLowerCase();
 
   if (!eventId) {
-    redirect("/events?error=Evento%20no%20válido");
+    redirect("/events?error=Evento%20no%20valido");
   }
 
   if (!fullName) {
@@ -49,7 +49,7 @@ export async function registerEventAttendee(formData: FormData) {
   }
 
   if (event._count.attendees >= event.capacity) {
-    redirectWithError(event.id, "El cupo del evento ya está lleno.");
+    redirectWithError(event.id, "El cupo del evento ya esta lleno.");
   }
 
   const duplicatedAttendee = await prisma.eventAttendee.findFirst({
@@ -61,7 +61,7 @@ export async function registerEventAttendee(formData: FormData) {
   });
 
   if (duplicatedAttendee) {
-    redirectWithError(event.id, "Ese correo ya está registrado en este evento.");
+    redirectWithError(event.id, "Ese correo ya esta registrado en este evento.");
   }
 
   await prisma.eventAttendee.create({
@@ -83,7 +83,7 @@ export async function cancelEvent(formData: FormData) {
   const eventId = getString(formData, "eventId");
 
   if (!eventId) {
-    redirect("/events?error=Evento%20no%20válido");
+    redirect("/events?error=Evento%20no%20valido");
   }
 
   const event = await prisma.event.findUnique({

@@ -1,18 +1,12 @@
 {
-  "name": "venueflow",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "body-parser": "^2.2.2",
-    "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "dev": "npm --prefix venueflow-next run dev",
+    "lint": "npm --prefix venueflow-next run lint",
+    "build": "npm --prefix venueflow-next run build",
+    "start": "npm --prefix venueflow-next run start",
+    "seed": "npm --prefix venueflow-next run seed",
+    "studio": "npm --prefix venueflow-next exec prisma studio",
+    "prisma:validate": "npm --prefix venueflow-next exec prisma validate"
   }
 }

@@ -54,7 +54,7 @@ export default async function RecommendationsPage({ searchParams }: PageProps) {
     : { error: null, recommendations: [] };
   const assistantSummary = shouldRecommend
     ? getAssistantSummary(input, result.recommendations)
-    : "Completa el formulario para que el asistente local evalúe capacidad, disponibilidad, presupuesto y compatibilidad del espacio.";
+    : "Cuéntame cuántas personas asistirán, cuándo necesitas el espacio y qué tipo de actividad realizarás. Analizaré capacidad, disponibilidad, precio y tipo de actividad para sugerirte las mejores opciones.";
 
   return (
     <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
@@ -64,8 +64,8 @@ export default async function RecommendationsPage({ searchParams }: PageProps) {
         </p>
         <h1 className="mt-2 text-3xl font-black tracking-tight">Asistente VenueFlow</h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Recomendador local basado en reglas. Está preparado para migrar a OpenAI
-          en una fase futura.
+          Encuentra el espacio ideal para tu actividad según personas, horario,
+          presupuesto y necesidades.
         </p>
 
         <form className="mt-6 grid gap-4" method="GET">
@@ -106,7 +106,7 @@ export default async function RecommendationsPage({ searchParams }: PageProps) {
           </div>
 
           <label className="grid gap-2">
-            <span className="text-sm font-bold text-slate-700">Tipo de uso</span>
+            <span className="text-sm font-bold text-slate-700">Tipo de actividad</span>
             <select
               name="useCase"
               defaultValue={params?.useCase ?? "reunion"}
@@ -159,12 +159,10 @@ export default async function RecommendationsPage({ searchParams }: PageProps) {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
             Asistente VenueFlow
           </p>
-          <h2 className="mt-2 text-2xl font-black text-blue-950">Respuesta simulada</h2>
+          <h2 className="mt-2 text-2xl font-black text-blue-950">
+            Encuentra el espacio ideal
+          </h2>
           <p className="mt-3 leading-7 text-blue-950">{assistantSummary}</p>
-          <p className="mt-3 text-sm font-semibold text-blue-800">
-            Esta respuesta no usa OpenAI todavía; se genera con reglas locales y datos
-            reales de PostgreSQL.
-          </p>
         </article>
 
         {result.error ? (
@@ -190,61 +188,72 @@ export default async function RecommendationsPage({ searchParams }: PageProps) {
                 </p>
               </div>
             ) : (
-              result.recommendations.map((recommendation) => (
+              result.recommendations.map((recommendation, index) => (
                 <article
                   key={recommendation.space.id}
-                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
                 >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-blue-700">
-                        {formatSpaceType(recommendation.space.type)}
-                      </p>
-                      <h3 className="mt-1 text-2xl font-black">
-                        {recommendation.space.name}
-                      </h3>
-                      <p className="mt-2 text-slate-600">
-                        {recommendation.space.description ?? "Sin descripción registrada."}
-                      </p>
+                  <div
+                    className={`h-24 ${
+                      [
+                        "bg-gradient-to-br from-blue-500 to-cyan-400",
+                        "bg-gradient-to-br from-violet-500 to-fuchsia-400",
+                        "bg-gradient-to-br from-emerald-500 to-teal-400",
+                      ][index % 3]
+                    }`}
+                  />
+                  <div className="p-5">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-blue-700">
+                          {formatSpaceType(recommendation.space.type)}
+                        </p>
+                        <h3 className="mt-1 text-2xl font-black">
+                          {recommendation.space.name}
+                        </h3>
+                        <p className="mt-2 text-slate-600">
+                          {recommendation.space.description ?? "Espacio disponible."}
+                        </p>
+                      </div>
+                      <span className="rounded-lg bg-emerald-50 px-3 py-2 text-sm font-black text-emerald-700">
+                        Disponible
+                      </span>
                     </div>
-                    <span className="rounded-lg bg-emerald-50 px-3 py-2 text-sm font-black text-emerald-700">
-                      Disponible
-                    </span>
+
+                    <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
+                      <div className="rounded-lg bg-slate-50 p-3">
+                        <dt className="font-semibold text-slate-500">Capacidad</dt>
+                        <dd className="mt-1 font-black">
+                          {recommendation.space.capacity} personas
+                        </dd>
+                      </div>
+                      <div className="rounded-lg bg-slate-50 p-3">
+                        <dt className="font-semibold text-slate-500">Precio</dt>
+                        <dd className="mt-1 font-black">
+                          {formatCurrency(recommendation.space.pricePerHour, "MXN/h")}
+                        </dd>
+                      </div>
+                      <div className="rounded-lg bg-slate-50 p-3">
+                        <dt className="font-semibold text-slate-500">Ubicación</dt>
+                        <dd className="mt-1 font-black">{recommendation.space.location}</dd>
+                      </div>
+                    </dl>
+
+                    <ul className="mt-5 grid gap-2 text-sm text-slate-600">
+                      {recommendation.reasons.map((reason) => (
+                        <li key={reason} className="rounded-lg bg-slate-50 px-3 py-2">
+                          {reason}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Link
+                      href={`/reservations/new?spaceId=${recommendation.space.id}`}
+                      className="mt-5 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+                    >
+                      Reservar este espacio
+                    </Link>
                   </div>
-
-                  <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
-                    <div className="rounded-lg bg-slate-50 p-3">
-                      <dt className="font-semibold text-slate-500">Capacidad</dt>
-                      <dd className="mt-1 font-black">
-                        {recommendation.space.capacity} personas
-                      </dd>
-                    </div>
-                    <div className="rounded-lg bg-slate-50 p-3">
-                      <dt className="font-semibold text-slate-500">Precio</dt>
-                      <dd className="mt-1 font-black">
-                        {formatCurrency(recommendation.space.pricePerHour, "MXN/h")}
-                      </dd>
-                    </div>
-                    <div className="rounded-lg bg-slate-50 p-3">
-                      <dt className="font-semibold text-slate-500">Ubicación</dt>
-                      <dd className="mt-1 font-black">{recommendation.space.location}</dd>
-                    </div>
-                  </dl>
-
-                  <ul className="mt-5 grid gap-2 text-sm text-slate-600">
-                    {recommendation.reasons.map((reason) => (
-                      <li key={reason} className="rounded-lg bg-slate-50 px-3 py-2">
-                        {reason}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link
-                    href={`/reservations/new?spaceId=${recommendation.space.id}`}
-                    className="mt-5 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
-                  >
-                    Reservar este espacio
-                  </Link>
                 </article>
               ))
             )}

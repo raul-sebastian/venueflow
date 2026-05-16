@@ -1,3 +1,5 @@
+import { headers } from "next/headers";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ensureCheckInsForEvent } from "@/lib/check-in";
@@ -7,6 +9,7 @@ import {
   getCheckInStatusLabel,
 } from "@/lib/formatters";
 import { prisma } from "@/lib/prisma";
+import { createQrDataUrl } from "@/lib/qr";
 
 type PageProps = {
   params: Promise<{
@@ -18,8 +21,17 @@ function shortToken(token: string) {
   return `${token.slice(0, 8)}...${token.slice(-8)}`;
 }
 
+async function getBaseUrl() {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host") ?? "localhost:3000";
+  const protocol = requestHeaders.get("x-forwarded-proto") ?? "http";
+
+  return `${protocol}://${host}`;
+}
+
 export default async function EventCheckInPage({ params }: PageProps) {
   const { id } = await params;
+  const baseUrl = await getBaseUrl();
 
   await ensureCheckInsForEvent(prisma, id);
 
@@ -38,6 +50,17 @@ export default async function EventCheckInPage({ params }: PageProps) {
     notFound();
   }
 
+  const attendeesWithQr = await Promise.all(
+    event.attendees.map(async (attendee) => {
+      const checkInUrl = attendee.checkIn
+        ? `${baseUrl}/check-in/${attendee.checkIn.token}`
+        : "";
+      const qrDataUrl = checkInUrl ? await createQrDataUrl(checkInUrl) : "";
+
+      return { attendee, checkInUrl, qrDataUrl };
+    }),
+  );
+
   return (
     <div className="space-y-6">
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -54,22 +77,21 @@ export default async function EventCheckInPage({ params }: PageProps) {
       </section>
 
       <section className="grid gap-5">
-        {event.attendees.length === 0 ? (
+        {attendeesWithQr.length === 0 ? (
           <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
             <h2 className="text-xl font-black">No hay asistentes registrados</h2>
             <p className="mt-2 text-slate-600">
-              Registra asistentes en el detalle del evento para generar enlaces de check-in.
+              Registra asistentes en el detalle del evento para generar códigos de check-in.
             </p>
           </div>
         ) : (
-          event.attendees.map((attendee) => {
+          attendeesWithQr.map(({ attendee, checkInUrl, qrDataUrl }) => {
             const checkIn = attendee.checkIn;
-            const checkInUrl = checkIn ? `/check-in/${checkIn.token}` : "#";
 
             return (
               <article
                 key={attendee.id}
-                className="grid gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-[1fr_280px]"
+                className="grid gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-[1fr_240px]"
               >
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
@@ -95,23 +117,27 @@ export default async function EventCheckInPage({ params }: PageProps) {
                         </p>
                       </div>
                       <div className="rounded-lg bg-slate-50 p-3">
-                        <p className="font-semibold text-slate-500">Enlace funcional</p>
+                        <p className="font-semibold text-slate-500">Enlace de check-in</p>
                         <Link href={checkInUrl} className="mt-1 block font-bold text-blue-700">
-                          Abrir check-in
+                          Abrir enlace
                         </Link>
                       </div>
                     </div>
                   ) : null}
                 </div>
 
-                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
-                  <div className="mx-auto grid size-32 place-items-center rounded-lg bg-white font-mono text-xs font-black uppercase tracking-[0.2em] text-slate-400 shadow-sm">
-                    QR
-                    <br />
-                    Placeholder
-                  </div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-center">
+                  {qrDataUrl ? (
+                    <Image
+                      src={qrDataUrl}
+                      alt={`QR de check-in para ${attendee.fullName}`}
+                      width={192}
+                      height={192}
+                      className="mx-auto rounded-lg bg-white p-2 shadow-sm"
+                    />
+                  ) : null}
                   <p className="mt-3 text-xs font-semibold text-slate-500">
-                    QR real pendiente. El enlace/token ya valida asistencia.
+                    Escanea para validar asistencia.
                   </p>
                 </div>
               </article>

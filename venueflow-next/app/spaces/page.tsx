@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { formatCurrency, formatSpaceType } from "@/lib/formatters";
 
-function formatMoney(value: unknown) {
-  return `$${Number(value).toLocaleString("es-MX")} MXN/h`;
-}
-
-function formatSpaceType(type: string) {
-  return type
-    .split("_")
-    .map((part) => part.charAt(0) + part.slice(1).toLowerCase())
-    .join(" ");
-}
+const coverClasses = [
+  "bg-gradient-to-br from-blue-500 to-cyan-400",
+  "bg-gradient-to-br from-violet-500 to-fuchsia-400",
+  "bg-gradient-to-br from-emerald-500 to-teal-400",
+  "bg-gradient-to-br from-amber-500 to-orange-400",
+  "bg-gradient-to-br from-slate-700 to-blue-500",
+  "bg-gradient-to-br from-rose-500 to-pink-400",
+];
 
 export default async function SpacesPage() {
   const spaces = await prisma.space.findMany({
@@ -26,8 +25,7 @@ export default async function SpacesPage() {
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-tight">Espacios</h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            Consulta los espacios disponibles registrados en PostgreSQL para
-            coworking, reuniones y eventos.
+            Explora espacios disponibles para coworking, reuniones, talleres y eventos.
           </p>
         </div>
         <Link
@@ -39,12 +37,13 @@ export default async function SpacesPage() {
       </section>
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {spaces.map((space) => (
+        {spaces.map((space, index) => (
           <article
             key={space.id}
-            className="flex min-h-72 flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="flex min-h-80 flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
           >
-            <div>
+            <div className={`h-28 ${coverClasses[index % coverClasses.length]}`} />
+            <div className="p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-black text-slate-950">{space.name}</h2>
@@ -64,11 +63,11 @@ export default async function SpacesPage() {
               </div>
 
               <p className="mt-4 min-h-16 text-sm leading-6 text-slate-600">
-                {space.description ?? "Sin descripción registrada."}
+                {space.description ?? "Espacio disponible para actividades y reservas."}
               </p>
             </div>
 
-            <dl className="mt-5 grid grid-cols-2 gap-3 text-sm">
+            <dl className="grid grid-cols-2 gap-3 p-5 pt-0 text-sm">
               <div className="rounded-lg bg-slate-50 p-3">
                 <dt className="font-semibold text-slate-500">Capacidad</dt>
                 <dd className="mt-1 font-black text-slate-950">{space.capacity} personas</dd>
@@ -76,7 +75,7 @@ export default async function SpacesPage() {
               <div className="rounded-lg bg-slate-50 p-3">
                 <dt className="font-semibold text-slate-500">Precio</dt>
                 <dd className="mt-1 font-black text-slate-950">
-                  {formatMoney(space.pricePerHour)}
+                  {formatCurrency(space.pricePerHour, "MXN/h")}
                 </dd>
               </div>
               <div className="col-span-2 rounded-lg bg-slate-50 p-3">
